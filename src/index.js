@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded',()=>{
         lists.appendChild(li)
         li.addEventListener('click',(e)=>{
           e.preventDefault()
-            displayDetails(movie)
+          displayDetails(movie)
         })
 
       })
@@ -70,6 +70,7 @@ function displayDetails(movie){
     //initialize my button
     const buyTicket= document.getElementById('buy-ticket')
     buyTicket.addEventListener('click',(e)=>{
+      e.preventDefault()
       update(movie)
     })
  }
