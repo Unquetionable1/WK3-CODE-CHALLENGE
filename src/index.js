@@ -2,7 +2,6 @@
 document.addEventListener('DOMContentLoaded',()=>{
     const lists= document.querySelector('ul')
     lists.textContent=""
-    const buyTicket= document.getElementById('buy-ticket')
     
     fetch("http://localhost:3000/films")
     .then(response => {
@@ -17,20 +16,38 @@ document.addEventListener('DOMContentLoaded',()=>{
         li.innerHTML +=`${movie.title}`
         lists.appendChild(li)
         li.addEventListener('click',(e)=>{
+          e.preventDefault()
             displayDetails(movie)
         })
-       
-        buyTicket.addEventListener('click',(e)=>{
-            updateTickets(movie)
-        })
-      });
+
+      })
     })
     .catch(error => console.error())
   
   })
 
+  //This updates the number oftickets remaining after every click on the buy button
+  function update(movie){
+    movie.tickets_sold +=1
+    updated_tickets =document.getElementById('ticket-num')
+    updated_tickets.innerHTML=`${movie.capacity-movie.tickets_sold} tickets`
+    updateSoldTickets(movie)
+  }
 
-  function displayDetails(movie){
+function updateSoldTickets(movie){
+  fetch(`http://localhost:3000/films/${movie.id}`,{
+    method:'PATCH',
+    headers:{
+      'Content-Type':'application/json'
+    },
+    body:JSON.stringify(movie)
+  })
+  .then(res => res.json())
+  .then(movie=>console.log(movie))
+}
+
+
+function displayDetails(movie){
     const title= document.getElementById('title')
     title.textContent=movie.title
 
@@ -40,28 +57,19 @@ document.addEventListener('DOMContentLoaded',()=>{
     const showtime = document.getElementById('showtime')
     showtime.innerHTML=`<p>runtime: ${movie.showtime}</p>`
 
+    
     const poster = document.getElementById('poster')
     poster.src=`${movie.poster}`
     poster.alt=`${movie.title}`
     
     const description =document.getElementById('film-info')
     description.innerHTML=`<p>${movie.description}</p>`
-
+    //
     const remaining=document.getElementById('ticket-num')
-    remaining.innerHTML=`${movie.capacity}-${movie.sold} tickets`
-    }
-
-    function updateTickets(movie){
-        if (movie.tickets_sold >= movie.capacity) {
-            buyTicket.textContent = "Sold Out";
-            buyTicket.setAttribute("disabled", "true");
-        } else {
-            buyTicket.textContent = "Buy Ticket";
-            buyTicket.removeAttribute("disabled");
-        }
-        if (currentMovie.tickets_sold < currentMovie.capacity) {
-            // Update the sold tickets count
-            movie.tickets_sold++;
-           
-        }
-    }
+    remaining.innerHTML=`${movie.capacity-movie.tickets_sold} tickets`
+    //initialize my button
+    const buyTicket= document.getElementById('buy-ticket')
+    buyTicket.addEventListener('click',(e)=>{
+      update(movie)
+    })
+ }
